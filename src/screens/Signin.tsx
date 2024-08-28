@@ -1,6 +1,13 @@
 import BackgroundImg from "@assets/background4.png";
 import React, { useState } from "react";
-import { Image, View, StyleSheet, Text, ScrollView } from "react-native";
+import {
+  Image,
+  View,
+  StyleSheet,
+  Text,
+  ScrollView,
+  ToastAndroid,
+} from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import theme from "src/theme";
 import { Headline } from "react-native-paper";
@@ -12,6 +19,7 @@ import { Layout } from "@components/Layout";
 import { useAuth } from "@routes/AuthContext";
 import { useSnackbar } from "src/context/snackbar.context";
 import { useForm, Controller } from "react-hook-form";
+import userService from "@services/user/userService";
 
 export function SignIn() {
   const {
@@ -27,8 +35,16 @@ export function SignIn() {
     navigation.navigate("signUp");
   }
 
-  const handleSignIn = (data: any) => {
-    if (data.email) signIn(data.email, data.password);
+  const handleSignIn = async (data: any) => {
+    try {
+      const response = await userService.getUserByEmailSenha(
+        data.email,
+        data.password
+      );
+      signIn(response);
+    } catch {
+      ToastAndroid.show("Usuário nao encontrado!", ToastAndroid.SHORT);
+    }
   };
 
   return (

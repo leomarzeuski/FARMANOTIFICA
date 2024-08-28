@@ -4,7 +4,7 @@ import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { AuthRoutes } from "./auth.routes";
 import { AppRoutes } from "./app.routes";
 import { ActivityIndicator, View } from "react-native";
-import { AuthContext } from "./AuthContext";
+import { AuthContext, useAuth } from "./AuthContext";
 
 const theme = {
   ...DefaultTheme,
@@ -15,13 +15,7 @@ const theme = {
 };
 
 export const Routes: React.FC = () => {
-  const authContext = useContext(AuthContext);
-
-  if (!authContext) {
-    throw new Error("AuthContext must be used within an AuthProvider");
-  }
-
-  const { user, isLoading } = authContext;
+  const { user, isLoading } = useAuth();
 
   if (isLoading) {
     return (
@@ -40,7 +34,7 @@ export const Routes: React.FC = () => {
 
   return (
     <NavigationContainer theme={theme}>
-      {user ? <AppRoutes /> : <AuthRoutes />}
+      {user?.dsEmail?.length > 0 ? <AppRoutes /> : <AuthRoutes />}
     </NavigationContainer>
   );
 };

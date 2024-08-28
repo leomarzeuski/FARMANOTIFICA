@@ -4,10 +4,10 @@
     "slug": "farmanotifica",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./src/assets/logoPill.png",
+    "icon": "./assets/favicon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./src/assets/logoPill.png",
+      "image": "./assets/favicon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -16,7 +16,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./src/assets/logoPill.png",
+        "foregroundImage": "./assets/favicon.png",
         "backgroundColor": "#ffffff"
       }
     },
@@ -24,7 +24,7 @@
       "favicon": "./assets/favicon.png"
     },
     "notification": {
-      "icon": "./src/assets/logoPill.png"
+      "icon": "./assets/favicon.png"
     }
   }
 }

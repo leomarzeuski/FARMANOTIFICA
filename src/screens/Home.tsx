@@ -22,6 +22,7 @@ import { useNavigation } from "@react-navigation/native";
 import { PharmacyCard } from "@components/PharmacyCard";
 import { AppNavigatorRoutesProps } from "@routes/app.routes";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useAuth } from "@routes/AuthContext";
 
 export function Home() {
   const [pharmacies, setPharmacies] = useState([
@@ -196,6 +197,7 @@ export function Home() {
   const [selectedValue, setSelectedValue] = useState<string>("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [filteredPharmacies, setFilteredPharmacies] = useState(pharmacies);
+  const { user } = useAuth();
 
   const handleOpenExerciseDetails = (pharmacy: any) => {
     navigation.navigate("pharmacy", { pharmacy });
@@ -220,7 +222,7 @@ export function Home() {
     <TouchableWithoutFeedback onPress={handleOutsidePress}>
       <View style={{ flex: 1, flexGrow: 1 }}>
         <View style={styles.container}>
-          <HomeHeader />
+          <HomeHeader userName={user?.dsNome} />
           <View style={styles.content}>
             <Headline style={styles.headline}>
               Informe o medicamento desejado

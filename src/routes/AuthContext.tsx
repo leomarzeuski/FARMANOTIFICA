@@ -1,4 +1,5 @@
 // src/contexts/AuthContext.tsx
+import { User } from "@services/user/userModel";
 import React, {
   createContext,
   useState,
@@ -7,17 +8,11 @@ import React, {
   useContext,
 } from "react";
 
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-}
-
 export type AuthContextType = {
-  user: User | null;
-  setUser: (user: User | null) => void;
+  user: User;
+  setUser: (user: User) => void;
   isLoading: boolean;
-  signIn: (email: string, password: string) => void;
+  signIn: (user: User) => void;
   signOut: () => void;
 };
 
@@ -30,21 +25,17 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User>({} as User);
   const [isLoading, setIsLoading] = useState(false);
 
   const signOut = () => {
-    setUser(null);
+    setUser({} as User);
   };
 
-  const signIn = (email: string, password: string) => {
+  const signIn = (user: User) => {
     setIsLoading(true);
-    if (email === "leo@email.com") {
-      setUser({
-        id: "1",
-        name: "Leonardo",
-        email: "leo@email.com",
-      });
+    if (user) {
+      setUser(user);
     }
     setIsLoading(false);
   };

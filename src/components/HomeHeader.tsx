@@ -6,7 +6,11 @@ import { Row } from "./Row";
 import { UserPhoto } from "./UserPhoto";
 import { useAuth } from "@routes/AuthContext";
 
-export function HomeHeader() {
+interface homeHeaderProps {
+  userName: string | undefined;
+}
+
+export const HomeHeader: React.FC<homeHeaderProps> = ({ userName }) => {
   const { signOut } = useAuth();
 
   const handleLogout = () => {
@@ -19,7 +23,7 @@ export function HomeHeader() {
         <UserPhoto uri="https://media.licdn.com/dms/image/C4D03AQGcjUCUcjM8Qg/profile-displayphoto-shrink_100_100/0/1658155159137?e=1721865600&v=beta&t=pTji-JOnCixqoa7RUL9v2qO1OyfHZSDuqRdxPKmuN2I" />
         <View style={styles.textcontainer}>
           <Text style={styles.greetingText}>Olá,</Text>
-          <Headline style={styles.headline}>Leonardo</Headline>
+          <Headline style={styles.headline}>{userName}</Headline>
         </View>
         <IconButton
           icon="logout"
@@ -31,7 +35,7 @@ export function HomeHeader() {
       </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {

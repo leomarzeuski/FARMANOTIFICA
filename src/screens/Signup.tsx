@@ -1,5 +1,5 @@
 import BackgroundImg from "@assets/background4.png";
-import { Image, View, StyleSheet, Text } from "react-native";
+import { Image, View, StyleSheet, Text, ToastAndroid } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import theme from "src/theme";
 import { Headline } from "react-native-paper";
@@ -9,6 +9,7 @@ import { useNavigation } from "@react-navigation/native";
 import { AuthNavigatorRoutesProps } from "@routes/auth.routes";
 import { Layout } from "@components/Layout";
 import { useForm, Controller } from "react-hook-form";
+import userService from "@services/user/userService";
 
 export function SignUp() {
   const navigation = useNavigation<AuthNavigatorRoutesProps>();
@@ -23,8 +24,20 @@ export function SignUp() {
     navigation.navigate("signIn");
   }
 
-  const onSubmit = (data: any) => {
-    console.log(data);
+  const onSubmit = async (data: any) => {
+    let body = {
+      urlFoto: "123123",
+      cdPessoa: 0,
+    };
+
+    try {
+      const response = await userService.createUser({ ...data, ...body });
+      console.log(response);
+      ToastAndroid.show("Usuário cadastrado com sucesso!", ToastAndroid.SHORT);
+      console.log(data);
+    } catch (error) {
+      ToastAndroid.show("Usuário nao cadastrado!", ToastAndroid.SHORT);
+    }
   };
 
   return (
@@ -54,7 +67,7 @@ export function SignUp() {
         </Headline>
         <Controller
           control={control}
-          name="name"
+          name="dsNome"
           rules={{ required: "Nome é obrigatório" }}
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
@@ -62,15 +75,15 @@ export function SignUp() {
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
-              error={!!errors.name}
-              errorMessage={errors.name ? errors.name.message : ""}
+              error={!!errors.dsNome}
+              errorMessage={errors.dsNome ? errors.dsNome.message : ""}
             />
           )}
         />
 
         <Controller
           control={control}
-          name="email"
+          name="dsEmail"
           rules={{
             required: "E-mail é obrigatório",
             pattern: {
@@ -86,15 +99,33 @@ export function SignUp() {
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
-              error={!!errors.email}
-              errorMessage={errors.email ? errors.email.message : ""}
+              error={!!errors.dsEmail}
+              errorMessage={errors.dsEmail ? errors.dsEmail.message : ""}
             />
           )}
         />
 
         <Controller
           control={control}
-          name="password"
+          name="nrCpf"
+          rules={{ required: "Cpf Obrigatório" }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <Input
+              placeholder="CPF"
+              keyboardType="number-pad"
+              maxLength={11}
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+              error={!!errors.nrCpf}
+              errorMessage={errors.nrCpf ? errors.nrCpf.message : ""}
+            />
+          )}
+        />
+
+        <Controller
+          control={control}
+          name="dsSenha"
           rules={{ required: "Senha é obrigatória" }}
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
@@ -103,8 +134,8 @@ export function SignUp() {
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
-              error={!!errors.password}
-              errorMessage={errors.password ? errors.password.message : ""}
+              error={!!errors.dsSenha}
+              errorMessage={errors.dsSenha ? errors.dsSenha.message : ""}
             />
           )}
         />

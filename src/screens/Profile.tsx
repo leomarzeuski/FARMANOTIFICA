@@ -1,10 +1,19 @@
 import { Input } from "@components/Input";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useAuth } from "@routes/AuthContext";
+import { User } from "@services/user/userModel";
+import userService from "@services/user/userService";
 import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  ToastAndroid,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import {
   ActivityIndicator,
   Avatar,
@@ -17,12 +26,14 @@ import theme from "src/theme";
 import * as yup from "yup";
 
 type FormDataProps = {
+  userName?: string;
   password: string;
   new_password: string;
   confirm_new_password: string;
 };
 
 const profileScheme = yup.object({
+  userName: yup.string(),
   password: yup
     .string()
     .required("Informe a senha.")
@@ -43,6 +54,7 @@ const profileScheme = yup.object({
 const PHOTO_SIZE = 100;
 
 export function Profile() {
+  const { user } = useAuth();
   const {
     control,
     handleSubmit,
@@ -50,10 +62,12 @@ export function Profile() {
   } = useForm<FormDataProps>({ resolver: yupResolver(profileScheme) });
   const [photoIsLoading, setPhotoIsLoading] = useState(false);
   const [userPhoto, setUserPhoto] = useState(
-    "https://media.licdn.com/dms/image/C4D03AQGcjUCUcjM8Qg/profile-displayphoto-shrink_100_100/0/1658155159137?e=1721865600&v=beta&t=pTji-JOnCixqoa7RUL9v2qO1OyfHZSDuqRdxPKmuN2I"
+    user?.urlFoto ||
+      "https://media.licdn.com/dms/image/C4D03AQGcjUCUcjM8Qg/profile-displayphoto-shrink_100_100/0/1658155159137?e=1721865600&v=beta&t=pTji-JOnCixqoa7RUL9v2qO1OyfHZSDuqRdxPKmuN2I"
   );
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  console.log(user);
 
   async function handleUserPhotoSelected() {
     setPhotoIsLoading(true);
@@ -95,8 +109,28 @@ export function Profile() {
     }
   }
 
-  const handleNewPassword = (data: FormDataProps) => {
-    console.log(data);
+  const handleNewPassword = async (data: FormDataProps) => {
+    console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+    try {
+      const pessoa = {
+        dsEmail: user.dsEmail,
+        nrCpf: user.nrCpf,
+        dsSenha: data.new_password,
+        dsNome: data.userName,
+        // anexo: userPhoto,
+      };
+      console.log({ id: user?.cdPessoa, pessoa });
+      console.log("IDIDIDIDIDIDI");
+      const response = await userService.updateUser(user?.cdPessoa, pessoa);
+
+      console.log({ response });
+      ToastAndroid.show("Tente novamente!", ToastAndroid.SHORT);
+    } catch (error) {
+      // setSnackbarMessage("Falha ao salvar a senha.");
+      // setSnackbarVisible(true);
+      console.log({ error });
+      return;
+    }
   };
 
   return (
@@ -117,15 +151,40 @@ export function Profile() {
             Alterar Foto
           </Text>
         </TouchableOpacity>
+
+        <Controller
+          control={control}
+          name="userName"
+          render={({ field: { onChange, value } }) => (
+            <View style={styles.inputContainer}>
+              <Input
+                placeholder="Nome de usuário"
+                defaultValue={user?.dsNome}
+                value={value}
+                onChangeText={onChange}
+                keyboardType="default"
+                autoCapitalize="none"
+                mode="outlined"
+                style={styles.input}
+              />
+            </View>
+          )}
+        />
+
         <Input
-          placeholder="Leonardo Marzeuski"
-          keyboardType="default"
+          placeholder="mail@gmail.com"
+          value={user?.dsEmail}
+          keyboardType="email-address"
           autoCapitalize="none"
           mode="outlined"
+          disabled={true}
+          editable={false}
           style={styles.input}
         />
+
         <Input
-          placeholder="leomarzeuski@gmail.com"
+          placeholder="111.111.111-11"
+          value={user?.nrCpf}
           keyboardType="email-address"
           autoCapitalize="none"
           mode="outlined"
@@ -180,7 +239,7 @@ export function Profile() {
             </View>
           )}
         />
-        {/* <Controller
+        <Controller
           control={control}
           name="confirm_new_password"
           render={({ field: { onChange, value } }) => (
@@ -202,13 +261,13 @@ export function Profile() {
               )}
             </View>
           )}
-        /> */}
+        />
         <Button
           mode="contained"
           onPress={handleSubmit(handleNewPassword)}
           style={styles.button}
         >
-          Atualizar
+          Atualizaraaaa
         </Button>
       </View>
       <Snackbar
