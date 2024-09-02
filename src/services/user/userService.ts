@@ -23,9 +23,7 @@ const getUserById = async (id: number) => {
 };
 
 const getUserByEmailSenha = async (dsEmail: string, dsSenha: string) => {
-  console.log(dsEmail, dsSenha);
   try {
-    console.log(dsEmail, dsSenha);
     const response = await api.get(`/LoginPessoa`, {
       params: { dsEmail, dsSenha },
     });

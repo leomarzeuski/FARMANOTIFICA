@@ -16,19 +16,25 @@ import {
   Button,
   Menu,
   Title,
+  Modal,
+  Portal,
+  Provider,
 } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import theme from "src/theme";
+import { useAuth } from "@routes/AuthContext";
 
 export const PharmacyDetails = () => {
+  const { user } = useAuth();
   const navigation = useNavigation<AppNavigatorRoutesProps>();
   const route = useRoute<any>();
-  const { pharmacy } = route.params;
-
-  const [selectedMedication, setSelectedMedication] = useState<string | null>(
-    null
+  const { unidade, medicamento, medicamentos } = route.params;
+  const selectedMedication = medicamento;
+  const additionalInformation = medicamentos.find(
+    (med: any) => med.dsMedicamento === selectedMedication
   );
-  const [menuVisible, setMenuVisible] = useState(false);
+
+  const [modalVisible, setModalVisible] = useState(false);
 
   function handleGoBack() {
     navigation.goBack();
@@ -36,125 +42,188 @@ export const PharmacyDetails = () => {
 
   function handleReserve() {
     if (selectedMedication) {
-      navigation.navigate("history", { medication: selectedMedication });
+      navigation.navigate("history", {
+        medication: selectedMedication,
+        medicamentos: medicamentos,
+        cdPessoa: user.cdPessoa,
+      });
     } else {
       alert("Por favor, selecione um medicamento.");
     }
   }
 
   function handleOpenMaps() {
-    const url = `https://www.google.com/maps/search/?api=1&query=${pharmacy.latitude},${pharmacy.longitude}`;
+    const url = `https://www.google.com/maps/search/?api=1&query=${unidade.latitude},${unidade.longitude}`;
     Linking.openURL(url);
   }
 
+  function handleOpenModal() {
+    setModalVisible(true);
+  }
+
+  function handleCloseModal() {
+    setModalVisible(false);
+  }
+
   return (
-    <View style={styles.container}>
-      <Card style={[styles.header, { backgroundColor: theme.colors.surface }]}>
-        <TouchableOpacity onPress={handleGoBack}>
-          <IconButton
-            icon="arrow-left"
-            iconColor={theme.colors.primary}
-            size={24}
-            onPress={handleGoBack}
-          />
-        </TouchableOpacity>
-        <View style={styles.headerContent}>
-          <Text style={styles.headerTitle}>{pharmacy.name}</Text>
-          <View style={styles.headerAddress}>
-            <MaterialCommunityIcons
-              name="hospital-building"
-              size={18}
-              color={theme.colors.text}
-            />
-            <Text style={styles.headerAddressText}>{pharmacy.address}</Text>
-          </View>
-        </View>
-      </Card>
-      <ScrollView contentContainerStyle={styles.content}>
-        <Title style={styles.centeredTitle}>{pharmacy.name}</Title>
-        <Image
-          source={{
-            uri: "https://noticiasdepaulinia.com.br/wp-content/uploads/2024/01/Farmacia-Autos-Custo-de-Paulinia.jpeg",
-          }}
-          style={styles.image}
-          resizeMode="cover"
-        />
+    <Provider>
+      <View style={styles.container}>
         <Card
-          style={[
-            styles.detailsCard,
-            { backgroundColor: theme.colors.surface },
-          ]}
+          style={[styles.header, { backgroundColor: theme.colors.surface }]}
         >
-          <View style={styles.detailsContainer}>
-            <View style={styles.detailsItem}>
+          <TouchableOpacity onPress={handleGoBack}>
+            <IconButton
+              icon="arrow-left"
+              iconColor={theme.colors.primary}
+              size={24}
+              onPress={handleGoBack}
+            />
+          </TouchableOpacity>
+          <View style={styles.headerContent}>
+            <Text style={styles.headerTitle}>{unidade.dsUnidade}</Text>
+            <View style={styles.headerAddress}>
               <MaterialCommunityIcons
-                name="pill"
-                size={24}
-                color={theme.colors.primary}
+                name="hospital-building"
+                size={18}
+                color={theme.colors.text}
               />
-              <Text style={styles.detailsText}>Medicamentos</Text>
+              <Text style={styles.headerAddressText}>{unidade.dsEndereco}</Text>
             </View>
-            <View style={styles.detailsItem}>
-              <MaterialCommunityIcons
-                name="clipboard-text"
-                size={24}
-                color={theme.colors.primary}
-              />
-              <Menu
-                visible={menuVisible}
-                onDismiss={() => setMenuVisible(false)}
-                anchor={
-                  <TouchableOpacity
-                    style={styles.selectInput}
-                    onPress={() => setMenuVisible(true)}
-                  >
-                    <Text>
-                      {selectedMedication || "Selecione um medicamento"}
-                    </Text>
-                    <MaterialCommunityIcons
-                      name="chevron-down"
-                      size={24}
-                      color="black"
-                    />
-                  </TouchableOpacity>
-                }
-              >
-                {pharmacy.medications.map(
-                  (medication: string, index: number) => (
-                    <Menu.Item
-                      key={index}
-                      onPress={() => {
-                        setSelectedMedication(medication);
-                        setMenuVisible(false);
-                      }}
-                      title={medication}
-                    />
-                  )
-                )}
-              </Menu>
-            </View>
-            <TouchableOpacity
-              onPress={handleOpenMaps}
-              style={styles.detailsItem}
-            >
-              <MaterialCommunityIcons
-                name="map-marker"
-                size={24}
-                color={theme.colors.primary}
-              />
-              <Text style={styles.detailsText}>Localização</Text>
-            </TouchableOpacity>
-            <Button
-              mode="contained"
-              onPress={handleReserve}
-              style={styles.button}
-            >
-              Quero reservar!
-            </Button>
           </View>
         </Card>
-      </ScrollView>
-    </View>
+        <ScrollView contentContainerStyle={styles.content}>
+          <Title style={styles.centeredTitle}>{unidade.dsUnidade}</Title>
+          <Image
+            source={{
+              uri: "https://noticiasdepaulinia.com.br/wp-content/uploads/2024/01/Farmacia-Autos-Custo-de-Paulinia.jpeg",
+            }}
+            style={styles.image}
+            resizeMode="cover"
+          />
+          <Card
+            style={[
+              styles.detailsCard,
+              { backgroundColor: theme.colors.surface },
+            ]}
+          >
+            <View style={styles.detailsContainer}>
+              <View style={styles.detailsItem}>
+                <MaterialCommunityIcons
+                  name="city"
+                  size={24}
+                  color={theme.colors.primary}
+                />
+                <Text style={styles.detailsText}>
+                  Cidade: {unidade.dsCidade}
+                </Text>
+              </View>
+              <View style={styles.detailsItem}>
+                <MaterialCommunityIcons
+                  name="domain"
+                  size={24}
+                  color={theme.colors.primary}
+                />
+                <Text style={styles.detailsText}>UF: {unidade.dsUf}</Text>
+              </View>
+              <View style={styles.detailsItem}>
+                <MaterialCommunityIcons
+                  name="identifier"
+                  size={24}
+                  color={theme.colors.primary}
+                />
+                <Text style={styles.detailsText}>CNPJ: {unidade.dsCnpj}</Text>
+              </View>
+              <View style={styles.detailsItem}>
+                <MaterialCommunityIcons
+                  name="clipboard-text"
+                  size={24}
+                  color={theme.colors.primary}
+                />
+                <Text style={styles.detailsText}>
+                  {selectedMedication || "Nenhum Medicamento Selecionado!"}
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={styles.detailsItem}
+                onPress={handleOpenModal}
+              >
+                <MaterialCommunityIcons
+                  name="pill"
+                  size={24}
+                  color={theme.colors.primary}
+                />
+                <Text style={styles.clickableText}>Leia a Bula aqui</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleOpenMaps}
+                style={styles.detailsItem}
+              >
+                <MaterialCommunityIcons
+                  name="map-marker"
+                  size={24}
+                  color={theme.colors.primary}
+                />
+                <Text style={styles.detailsText}>Localização</Text>
+              </TouchableOpacity>
+              <Button
+                mode="contained"
+                onPress={handleReserve}
+                style={styles.button}
+              >
+                Quero reservar!
+              </Button>
+            </View>
+          </Card>
+        </ScrollView>
+
+        {/* Modal para exibir informações do medicamento */}
+        <Portal>
+          <Modal
+            visible={modalVisible}
+            onDismiss={handleCloseModal}
+            contentContainerStyle={styles.modalContainer}
+          >
+            <View>
+              {additionalInformation ? (
+                <>
+                  <Title>{additionalInformation.dsMedicamento}</Title>
+                  <Text>Dosagem: {additionalInformation.dsDosagem}</Text>
+                  <Text>Fabricante: {additionalInformation.dsFabricante}</Text>
+                  <Text>Observação: {additionalInformation.dsObservacao}</Text>
+                  <Text>
+                    Registro ANVISA:{" "}
+                    {additionalInformation.dsCodigoRegistroAnvisa}
+                  </Text>
+                  <Text>
+                    Grupo Financiamento:{" "}
+                    {additionalInformation.dsGrupoFinanciamento || "N/A"}
+                  </Text>
+                  <Text>CID: {additionalInformation.dsCid}</Text>
+                  <Text>
+                    Ativo:{" "}
+                    {additionalInformation.snAtivo === "S" ? "Sim" : "Não"}
+                  </Text>
+                  <Text
+                    style={styles.clickableText}
+                    onPress={() =>
+                      Linking.openURL(
+                        additionalInformation.urlBula ||
+                          "Não disponível até o momento."
+                      )
+                    }
+                  >
+                    Para ler a bula completa, clique aqui.
+                  </Text>
+                  <Button onPress={handleCloseModal}>Fechar</Button>
+                </>
+              ) : (
+                <Text>Nenhuma informação adicional disponível.</Text>
+              )}
+            </View>
+          </Modal>
+        </Portal>
+      </View>
+    </Provider>
   );
 };
 
@@ -221,6 +290,11 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 16,
+    width: "100%",
+    backgroundColor: theme.colors.primary,
+    borderRadius: 4,
+    justifyContent: "center",
+    alignItems: "center",
   },
   selectInput: {
     flexDirection: "row",
@@ -232,5 +306,15 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.primary,
     paddingHorizontal: 24,
     paddingVertical: 4,
+  },
+  modalContainer: {
+    backgroundColor: "white",
+    padding: 20,
+    margin: 20,
+    borderRadius: 8,
+  },
+  clickableText: {
+    color: theme.colors.primary,
+    textDecorationLine: "underline",
   },
 });

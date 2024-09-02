@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { View, SectionList, StyleSheet, Platform } from "react-native";
+import {
+  View,
+  SectionList,
+  StyleSheet,
+  Platform,
+  TouchableOpacity,
+} from "react-native";
 import {
   Text,
   Card,
@@ -15,38 +21,22 @@ import { HistoryCard } from "@components/HistoryCard";
 import { ScreenHeader } from "@components/ScreenHeader";
 import theme from "src/theme";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { createSolicitacao } from "@services/solicitacoes/solicitacaoService";
+import { useRoute } from "@react-navigation/native";
+import * as DocumentPicker from "expo-document-picker";
+interface IFile {
+  uri: string;
+  type: string;
+  name: string;
+}
 
 export const History = () => {
   const [medications, setMedications] = useState([
     {
-      title: "27.08.24",
+      title: "Histórico de Solicitações",
       data: [
         {
           id: 1,
-          title: "Envie seu laudo",
-          status: "Enviar",
-          action: "Enviar >",
-        },
-        {
-          id: 2,
-          title: "Reserve sua Entrega",
-          status: "Agendar",
-          action: "Agendar >",
-        },
-        {
-          id: 3,
-          title: "Laudo não aprovado!",
-          status: "Reenviar",
-          action: "< Reenviar",
-        },
-        { id: 4, title: "Em análise...", status: "Em análise", action: " " },
-      ],
-    },
-    {
-      title: "26.08.24",
-      data: [
-        {
-          id: 5,
           title: "Envie seu laudo",
           status: "Enviar",
           action: "Enviar >",
@@ -64,6 +54,9 @@ export const History = () => {
   const [appointments, setAppointments] = useState<any[]>([]);
   const [showAppointments, setShowAppointments] = useState(false);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [file, setFile] = useState<IFile | null>(null);
+  const route = useRoute<any>();
+  const { medication, medicamentos, cdPessoa } = route.params;
 
   const showDatePicker1 = () => {
     setDatePickerVisibility(true);
@@ -82,8 +75,7 @@ export const History = () => {
   const handleCardPress = (item: any) => {
     setSelectedItem(item);
     if (item.status === "Enviar" || item.status === "Reenviar") {
-      setSelectedFileName("nome do arquivo");
-      setShowModal(true);
+      pickDocument();
     } else if (item.status === "Agendar") {
       Platform.OS === "ios"
         ? setDatePickerVisibility(true)
@@ -91,19 +83,50 @@ export const History = () => {
     }
   };
 
-  const onDismiss = () => {
-    setShowDatePicker(false);
-  };
+  const pickDocument = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: "*/*",
+        copyToCacheDirectory: true,
+      });
 
-  const onConfirm = (event: any, date?: Date) => {
-    setShowDatePicker(false);
-    if (date) {
-      setSelectedDate(date);
-      setShowConfirmationModal(true);
+      if (result.type === "success") {
+        const { uri, name, mimeType } = result;
+        setSelectedFileName(name);
+        setFile({ uri, name, type: mimeType || "application/pdf" });
+        setShowModal(true);
+      }
+    } catch (error) {
+      console.error("Erro ao selecionar documento:", error);
     }
   };
 
-  const handleLoadDocument = () => {
+  const handleLoadDocument = async () => {
+    if (!file) {
+      alert("Por favor, selecione um arquivo para carregar.");
+      return;
+    }
+
+    const solicitacaoData = {
+      cdPessoa: cdPessoa,
+      dtSolicitacao: "",
+      listaCdUnidadeMedicamento: [medicamentos.cdMedicamento],
+      arquivo: file,
+    };
+
+    try {
+      await createSolicitacao(solicitacaoData);
+      alert("Solicitação enviada com sucesso!");
+      handleLoadDocumentSuccess();
+    } catch (error) {
+      console.error("Erro ao enviar solicitação:", error);
+      alert("Erro ao enviar solicitação.");
+    }
+
+    setShowModal(false);
+  };
+
+  const handleLoadDocumentSuccess = () => {
     const updatedMedications = medications.map((section) => {
       const updatedData = section.data.map((item) => {
         if (item.id === selectedItem.id) {
@@ -119,7 +142,6 @@ export const History = () => {
       return { ...section, data: updatedData };
     });
     setMedications(updatedMedications);
-    setShowModal(false);
   };
 
   const handleAcceptTerms = () => {
@@ -244,7 +266,7 @@ export const History = () => {
                 value={selectedDate || new Date()}
                 mode="date"
                 display={"default"}
-                onChange={onConfirm}
+                onChange={() => {}}
               />
             ))}
 

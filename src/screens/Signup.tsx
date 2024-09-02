@@ -10,9 +10,11 @@ import { AuthNavigatorRoutesProps } from "@routes/auth.routes";
 import { Layout } from "@components/Layout";
 import { useForm, Controller } from "react-hook-form";
 import userService from "@services/user/userService";
+import { useAuth } from "@routes/AuthContext";
 
 export function SignUp() {
   const navigation = useNavigation<AuthNavigatorRoutesProps>();
+  const { signIn } = useAuth();
 
   const {
     control,
@@ -26,15 +28,14 @@ export function SignUp() {
 
   const onSubmit = async (data: any) => {
     let body = {
-      urlFoto: "123123",
       cdPessoa: 0,
     };
 
     try {
       const response = await userService.createUser({ ...data, ...body });
-      console.log(response);
+
       ToastAndroid.show("Usuário cadastrado com sucesso!", ToastAndroid.SHORT);
-      console.log(data);
+      signIn(response.data);
     } catch (error) {
       ToastAndroid.show("Usuário nao cadastrado!", ToastAndroid.SHORT);
     }

@@ -16,8 +16,8 @@ type AppRoutes = {
   home: undefined;
   profile: undefined;
   products: undefined;
-  history?: { medication?: any };
-  pharmacy?: { pharmacy?: any };
+  history?: any;
+  pharmacy?: any;
 };
 
 export type AppNavigatorRoutesProps = BottomTabNavigationProp<AppRoutes>;

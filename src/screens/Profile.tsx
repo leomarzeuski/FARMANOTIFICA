@@ -25,19 +25,20 @@ import {
 import theme from "src/theme";
 import * as yup from "yup";
 
+interface IFile {
+  uri: string;
+  type: string;
+  name: string;
+}
+
 type FormDataProps = {
   userName?: string;
-  password: string;
   new_password: string;
   confirm_new_password: string;
 };
 
 const profileScheme = yup.object({
   userName: yup.string(),
-  password: yup
-    .string()
-    .required("Informe a senha.")
-    .min(6, "A senha deve ter pelo menos 6 digitos."),
   new_password: yup
     .string()
     .required("Informe a nova senha.")
@@ -100,7 +101,14 @@ export function Profile() {
           return;
         }
 
-        setUserPhoto(photoSelected.assets[0].uri);
+        // Transformando a URI da imagem selecionada em um formato IFile
+        const selectedImage: IFile = {
+          uri: photoSelected.assets[0].uri,
+          type: "image/jpeg", // Você pode usar 'image/jpeg' ou o tipo MIME adequado
+          name: photoSelected.assets[0].uri.split("/").pop() || "profile.jpg", // Usando o nome do arquivo da URI ou um nome padrão
+        };
+
+        setUserPhoto(selectedImage.uri); // Atualizando a URI da foto do usuário para exibição
       }
     } catch (error) {
       console.log(error);
@@ -110,24 +118,32 @@ export function Profile() {
   }
 
   const handleNewPassword = async (data: FormDataProps) => {
-    console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
     try {
-      const pessoa = {
-        dsEmail: user.dsEmail,
-        nrCpf: user.nrCpf,
-        dsSenha: data.new_password,
-        dsNome: data.userName,
-        // anexo: userPhoto,
+      // A foto do usuário já deve estar no formato IFile
+      const userPhotoFile: IFile = {
+        uri: userPhoto,
+        type: "image/jpeg", // Ajuste o tipo MIME conforme necessário
+        name: userPhoto.split("/").pop() || "profile.jpg",
       };
-      console.log({ id: user?.cdPessoa, pessoa });
-      console.log("IDIDIDIDIDIDI");
+
+      const pessoa = {
+        cdPessoa: user?.cdPessoa,
+        dsEmail: user?.dsEmail,
+        nrCpf: user?.nrCpf,
+        dsSenha: data.new_password || user?.dsSenha,
+        dsNome: data.userName || user?.dsNome,
+        anexo: userPhotoFile, // Enviando a foto no formato IFile
+      };
+
+      console.log({ pessoa });
+
       const response = await userService.updateUser(user?.cdPessoa, pessoa);
 
-      console.log({ response });
-      ToastAndroid.show("Tente novamente!", ToastAndroid.SHORT);
+      console.log({ response, data });
+      ToastAndroid.show("Usuário atualizado!", ToastAndroid.SHORT);
     } catch (error) {
-      // setSnackbarMessage("Falha ao salvar a senha.");
-      // setSnackbarVisible(true);
+      setSnackbarMessage("Falha ao salvar a senha.");
+      setSnackbarVisible(true);
       console.log({ error });
       return;
     }
@@ -196,32 +212,12 @@ export function Profile() {
         <Headline style={styles.sectionTitle}>Alterar senha</Headline>
         <Controller
           control={control}
-          name="password"
-          render={({ field: { onChange, value } }) => (
-            <View style={styles.inputContainer}>
-              <Input
-                mode="outlined"
-                placeholder="Senha antiga"
-                secureTextEntry
-                onChangeText={onChange}
-                value={value}
-                error={!!errors.password}
-                style={styles.input}
-                theme={{ colors: { background: theme.colors.footer } }}
-              />
-              {errors.password && (
-                <Text style={styles.errorText}>{errors.password.message}</Text>
-              )}
-            </View>
-          )}
-        />
-        <Controller
-          control={control}
           name="new_password"
           render={({ field: { onChange, value } }) => (
             <View style={styles.inputContainer}>
               <Input
                 mode="outlined"
+                label="Nova senha"
                 placeholder="Nova senha"
                 placeholderTextColor={"primary"}
                 secureTextEntry
@@ -267,7 +263,7 @@ export function Profile() {
           onPress={handleSubmit(handleNewPassword)}
           style={styles.button}
         >
-          Atualizaraaaa
+          Atualizar
         </Button>
       </View>
       <Snackbar
