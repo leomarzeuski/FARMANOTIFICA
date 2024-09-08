@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   SectionList,
@@ -55,8 +55,10 @@ export const History = () => {
   const [showAppointments, setShowAppointments] = useState(false);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [file, setFile] = useState<IFile | null>(null);
+
   const route = useRoute<any>();
-  const { medication, medicamentos, cdPessoa } = route.params;
+  const { medicamentos, cdPessoa } = route.params;
+  console.log({ medicamentos, cdPessoa, file });
 
   const showDatePicker1 = () => {
     setDatePickerVisibility(true);
@@ -75,7 +77,7 @@ export const History = () => {
   const handleCardPress = (item: any) => {
     setSelectedItem(item);
     if (item.status === "Enviar" || item.status === "Reenviar") {
-      pickDocument();
+      setShowModal(true);
     } else if (item.status === "Agendar") {
       Platform.OS === "ios"
         ? setDatePickerVisibility(true)
@@ -83,23 +85,42 @@ export const History = () => {
     }
   };
 
+  const uriToFile = async (uri, filename) => {
+    // Fetch para obter o blob do arquivo (opcional, dependendo do uso)
+    const response = await fetch(uri);
+    const blob = await response.blob();
+
+    // Retorna o objeto no formato IFile
+    return {
+      uri: uri,
+      type: blob.type || "application/pdf", // Garante que o tipo MIME esteja definido
+      name: filename,
+    };
+  };
+
   const pickDocument = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
-        type: "*/*",
-        copyToCacheDirectory: true,
+        type: "application/pdf",
       });
 
-      if (result.type === "success") {
-        const { uri, name, mimeType } = result;
+      if (!result.canceled) {
+        const { uri, name, size } = result.assets[0];
+
+        const ifile = await uriToFile(uri, name);
         setSelectedFileName(name);
-        setFile({ uri, name, type: mimeType || "application/pdf" });
-        setShowModal(true);
+        setFile(ifile);
       }
     } catch (error) {
       console.error("Erro ao selecionar documento:", error);
     }
   };
+
+  useEffect(() => {
+    if (file) {
+      handleLoadDocument();
+    }
+  }, [file]);
 
   const handleLoadDocument = async () => {
     if (!file) {
@@ -110,9 +131,15 @@ export const History = () => {
     const solicitacaoData = {
       cdPessoa: cdPessoa,
       dtSolicitacao: "",
-      listaCdUnidadeMedicamento: [medicamentos.cdMedicamento],
-      arquivo: file,
+      listaCdUnidadeMedicamento: medicamentos.map(
+        (el: any) => el.cdMedicamento
+      ),
+      anexo: file,
     };
+    console.log("=========================");
+    console.log({ file });
+    console.log("------------------------");
+    console.log({ solicitacaoData });
 
     try {
       await createSolicitacao(solicitacaoData);
@@ -243,7 +270,7 @@ export const History = () => {
                 <Paragraph>Arquivo - {selectedFileName}</Paragraph>
               </Card.Content>
               <Card.Actions style={styles.modalActions}>
-                <Button mode="contained" onPress={handleLoadDocument}>
+                <Button mode="contained" onPress={pickDocument}>
                   Carregar Laudo
                 </Button>
                 <Button mode="outlined" onPress={() => setShowModal(false)}>

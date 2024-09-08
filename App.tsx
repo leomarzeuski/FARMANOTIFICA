@@ -8,6 +8,7 @@ import { Routes } from "./src/routes";
 import * as Notifications from "expo-notifications";
 import { AuthProvider } from "@routes/AuthContext";
 import { SnackbarProvider } from "src/context/snackbar.context";
+import messaging from "@react-native-firebase/messaging";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -21,6 +22,27 @@ export default function App() {
   const [isLoading, setIsLoading] = React.useState(true);
   const notificationListener = React.useRef<any>();
   const responseListener = React.useRef<any>();
+
+  async function requestUserPermission() {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+    if (enabled) {
+      console.log("Authorization status:", authStatus);
+    }
+  }
+
+  const getToken = async () => {
+    const token = await messaging().getToken();
+    console.log({ token });
+  };
+
+  React.useEffect(() => {
+    requestUserPermission();
+    getToken();
+  }, []);
 
   React.useEffect(() => {
     const timer = setTimeout(() => {

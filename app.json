@@ -4,27 +4,40 @@
     "slug": "farmanotifica",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/favicon.png",
+    "icon": "./src/assets/favicon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/favicon.png",
+      "image": "./src/assets/favicon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "supportsTablet": true,
+      "bundleIdentifier": "com.leonardomarzeuski.farmanotifica"
     },
     "android": {
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/favicon.png",
+        "foregroundImage": "./src/assets/favicon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.leonardomarzeuski.farmanotifica"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./src/assets/favicon.png"
     },
     "notification": {
-      "icon": "./assets/favicon.png"
+      "icon": "./src/assets/favicon.png"
+    },
+    "plugins": [
+      "@react-native-firebase/app",
+      "@react-native-firebase/messaging"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "4aba6f32-670c-42b4-8351-f34d00ff45b4"
+      }
     }
   }
 }
