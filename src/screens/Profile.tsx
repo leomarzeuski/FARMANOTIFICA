@@ -62,10 +62,10 @@ export function Profile() {
     formState: { errors },
   } = useForm<FormDataProps>({ resolver: yupResolver(profileScheme) });
   const [photoIsLoading, setPhotoIsLoading] = useState(false);
-  const [userPhoto, setUserPhoto] = useState(
-    user?.urlFoto ||
-      "https://media.licdn.com/dms/image/C4D03AQGcjUCUcjM8Qg/profile-displayphoto-shrink_100_100/0/1658155159137?e=1721865600&v=beta&t=pTji-JOnCixqoa7RUL9v2qO1OyfHZSDuqRdxPKmuN2I"
-  );
+  const [userPhoto, setUserPhoto] = useState(user?.urlFoto);
+  console.log({ user });
+  // user?.urlFoto ||
+  //   "https://media.licdn.com/dms/image/C4D03AQGcjUCUcjM8Qg/profile-displayphoto-shrink_100_100/0/1658155159137?e=1721865600&v=beta&t=pTji-JOnCixqoa7RUL9v2qO1OyfHZSDuqRdxPKmuN2I"
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   console.log(user);
@@ -101,14 +101,18 @@ export function Profile() {
           return;
         }
 
-        // Transformando a URI da imagem selecionada em um formato IFile
-        const selectedImage: IFile = {
-          uri: photoSelected.assets[0].uri,
-          type: "image/jpeg", // Você pode usar 'image/jpeg' ou o tipo MIME adequado
-          name: photoSelected.assets[0].uri.split("/").pop() || "profile.jpg", // Usando o nome do arquivo da URI ou um nome padrão
-        };
+        const selectedImage: IFile = await uriToFile(
+          photoSelected.assets[0].uri,
+          photoSelected.assets[0].uri.split("/").pop()
+        );
 
-        setUserPhoto(selectedImage.uri); // Atualizando a URI da foto do usuário para exibição
+        // {
+        //   uri: photoSelected.assets[0].uri,
+        //   type: "image/jpeg", // Você pode usar 'image/jpeg' ou o tipo MIME adequado
+        //   name: photoSelected.assets[0].uri.split("/").pop() || "profile.jpg", // Usando o nome do arquivo da URI ou um nome padrão
+        // };
+        console.log({ selectedImage });
+        setUserPhoto(selectedImage);
       }
     } catch (error) {
       console.log(error);
@@ -117,14 +121,28 @@ export function Profile() {
     }
   }
 
+  const uriToFile = async (uri: any, filename: any) => {
+    // Fetch para obter o blob do arquivo (opcional, dependendo do uso)
+    const response = await fetch(uri);
+    const blob = await response.blob();
+
+    // Retorna o objeto no formato IFile
+    return {
+      uri: uri,
+      type: blob.type || "application/pdf",
+      name: filename,
+    };
+  };
+
   const handleNewPassword = async (data: FormDataProps) => {
+    console.log("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
     try {
-      // A foto do usuário já deve estar no formato IFile
-      const userPhotoFile: IFile = {
-        uri: userPhoto,
-        type: "image/jpeg", // Ajuste o tipo MIME conforme necessário
-        name: userPhoto.split("/").pop() || "profile.jpg",
-      };
+      // // A foto do usuário já deve estar no formato IFile
+      // const userPhotoFile: IFile = {
+      //   uri: userPhoto,
+      //   type: "image/jpeg", // Ajuste o tipo MIME conforme necessário
+      //   name: userPhoto.split("/").pop() || "profile.jpg",
+      // };
 
       const pessoa = {
         cdPessoa: user?.cdPessoa,
@@ -132,13 +150,13 @@ export function Profile() {
         nrCpf: user?.nrCpf,
         dsSenha: data.new_password || user?.dsSenha,
         dsNome: data.userName || user?.dsNome,
-        anexo: userPhotoFile, // Enviando a foto no formato IFile
+        anexo: userPhoto, // Enviando a foto no formato IFile
       };
 
       console.log({ pessoa });
 
       const response = await userService.updateUser(user?.cdPessoa, pessoa);
-
+      console.log({ response });
       console.log({ response, data });
       ToastAndroid.show("Usuário atualizado!", ToastAndroid.SHORT);
     } catch (error) {

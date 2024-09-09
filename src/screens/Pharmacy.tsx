@@ -43,8 +43,8 @@ export const PharmacyDetails = () => {
   function handleReserve() {
     if (selectedMedication) {
       navigation.navigate("history", {
-        medication: selectedMedication,
-        medicamentos: medicamentos,
+        medication: selectedMedication ?? "",
+        medicamentos: medicamentos ?? [],
         cdPessoa: user.cdPessoa,
       });
     } else {
@@ -53,7 +53,7 @@ export const PharmacyDetails = () => {
   }
 
   function handleOpenMaps() {
-    const url = `https://www.google.com/maps/search/?api=1&query=${unidade.latitude},${unidade.longitude}`;
+    const url = `https://www.google.com/maps/search/?api=1&query=${unidade.dsCidade},${unidade.dsEndereco}`;
     Linking.openURL(url);
   }
 

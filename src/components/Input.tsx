@@ -6,12 +6,14 @@ import theme from "../theme";
 interface InputProps extends TextInputProps {
   error?: boolean;
   errorMessage?: any;
+  width?: number | string;
 }
 
 export function Input({
   error,
   errorMessage,
   editable = true,
+  width = 300,
   ...rest
 }: InputProps) {
   return (
@@ -21,6 +23,7 @@ export function Input({
         editable={editable}
         style={[
           styles.input,
+          { width },
           error ? styles.errorInput : null,
           !editable && styles.disabledInput,
         ]}
@@ -48,7 +51,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#212025",
     borderRadius: 5,
     marginBottom: 8,
-    width: 300,
+    minWidth: 200,
   },
   errorInput: {
     borderBottomWidth: 2,

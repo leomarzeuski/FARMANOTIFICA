@@ -11,7 +11,10 @@ interface homeHeaderProps {
 }
 
 export const HomeHeader: React.FC<homeHeaderProps> = ({ userName }) => {
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
+  const photo = user.urlFoto
+    ? user.urlFoto
+    : "https://media.licdn.com/dms/image/C4D03AQGcjUCUcjM8Qg/profile-displayphoto-shrink_100_100/0/1658155159137?e=1721865600&v=beta&t=pTji-JOnCixqoa7RUL9v2qO1OyfHZSDuqRdxPKmuN2I";
 
   const handleLogout = () => {
     signOut();
@@ -20,7 +23,7 @@ export const HomeHeader: React.FC<homeHeaderProps> = ({ userName }) => {
   return (
     <View style={styles.container}>
       <View style={styles.row}>
-        <UserPhoto uri="https://media.licdn.com/dms/image/C4D03AQGcjUCUcjM8Qg/profile-displayphoto-shrink_100_100/0/1658155159137?e=1721865600&v=beta&t=pTji-JOnCixqoa7RUL9v2qO1OyfHZSDuqRdxPKmuN2I" />
+        <UserPhoto uri={photo} />
         <View style={styles.textcontainer}>
           <Text style={styles.greetingText}>Olá,</Text>
           <Headline style={styles.headline}>{userName}</Headline>

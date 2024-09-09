@@ -9,8 +9,10 @@ import { Profile } from "@screens/Profile";
 import HistorySvg from "@assets/history.svg";
 import HomeSvg from "@assets/home.svg";
 import ProfileSvg from "@assets/profile.svg";
+import AISvg from "@assets/ai.svg";
 import { PharmacyDetails } from "@screens/Pharmacy";
 import theme from "src/theme";
+import IA from "@screens/AI";
 
 type AppRoutes = {
   home: undefined;
@@ -18,6 +20,7 @@ type AppRoutes = {
   products: undefined;
   history?: any;
   pharmacy?: any;
+  IA?: any;
 };
 
 export type AppNavigatorRoutesProps = BottomTabNavigationProp<AppRoutes>;
@@ -80,6 +83,15 @@ export function AppRoutes() {
         options={{
           tabBarIcon: ({ color }) => (
             <ProfileSvg fill={color} width={iconSize} height={iconSize} />
+          ),
+        }}
+      />
+      <Screen
+        name="IA"
+        component={IA}
+        options={{
+          tabBarIcon: ({ color }) => (
+            <AISvg fill={color} width={iconSize} height={iconSize} />
           ),
         }}
       />

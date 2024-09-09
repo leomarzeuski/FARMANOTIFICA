@@ -58,7 +58,7 @@ export const History = () => {
 
   const route = useRoute<any>();
   const { medicamentos, cdPessoa } = route.params;
-  console.log({ medicamentos, cdPessoa, file });
+  // console.log({ medicamentos, cdPessoa, file });
 
   const showDatePicker1 = () => {
     setDatePickerVisibility(true);
