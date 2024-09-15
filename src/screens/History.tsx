@@ -1,13 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { View, SectionList, StyleSheet, Platform } from "react-native";
 import {
-  View,
-  SectionList,
-  StyleSheet,
-  Platform,
-  TouchableOpacity,
-} from "react-native";
-import {
-  Text,
   Card,
   Button,
   Title,
@@ -58,7 +51,6 @@ export const History = () => {
 
   const route = useRoute<any>();
   const { medicamentos, cdPessoa } = route.params;
-  // console.log({ medicamentos, cdPessoa, file });
 
   const showDatePicker1 = () => {
     setDatePickerVisibility(true);
@@ -85,15 +77,12 @@ export const History = () => {
     }
   };
 
-  const uriToFile = async (uri, filename) => {
-    // Fetch para obter o blob do arquivo (opcional, dependendo do uso)
+  const uriToFile = async (uri: any, filename: string) => {
     const response = await fetch(uri);
     const blob = await response.blob();
-
-    // Retorna o objeto no formato IFile
     return {
       uri: uri,
-      type: blob.type || "application/pdf", // Garante que o tipo MIME esteja definido
+      type: blob.type || "application/pdf",
       name: filename,
     };
   };
@@ -136,10 +125,6 @@ export const History = () => {
       ),
       anexo: file,
     };
-    console.log("=========================");
-    console.log({ file });
-    console.log("------------------------");
-    console.log({ solicitacaoData });
 
     try {
       await createSolicitacao(solicitacaoData);

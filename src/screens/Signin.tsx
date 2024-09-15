@@ -7,6 +7,7 @@ import {
   Text,
   ScrollView,
   ToastAndroid,
+  ActivityIndicator,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import theme from "src/theme";
@@ -31,11 +32,14 @@ export function SignIn() {
   const { showSnackbar } = useSnackbar();
   const navigation = useNavigation<AuthNavigatorRoutesProps>();
 
+  const [loading, setLoading] = useState(false);
+
   function handleNewAccount() {
     navigation.navigate("signUp");
   }
 
   const handleSignIn = async (data: any) => {
+    setLoading(true);
     try {
       const response = await userService.getUserByEmailSenha(
         data.email,
@@ -44,6 +48,8 @@ export function SignIn() {
       signIn(response);
     } catch {
       ToastAndroid.show("Usuário nao encontrado!", ToastAndroid.SHORT);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -69,9 +75,12 @@ export function SignIn() {
             Consulte e agende seus medicamentos de forma rápida e prática!
           </Text>
         </View>
+
         <Headline style={{ color: theme.colors.text }}>
           Acesse sua conta
         </Headline>
+
+        {/* Email Field */}
         <Controller
           control={control}
           name="email"
@@ -96,6 +105,7 @@ export function SignIn() {
           )}
         />
 
+        {/* Password Field */}
         <Controller
           control={control}
           name="password"
@@ -113,7 +123,12 @@ export function SignIn() {
           )}
         />
 
-        <Button title="Acessar" onPress={handleSubmit(handleSignIn)} />
+        {/* Botão de Login e Spinner */}
+        {loading ? (
+          <ActivityIndicator size="large" color={theme.colors.primary} />
+        ) : (
+          <Button title="Acessar" onPress={handleSubmit(handleSignIn)} />
+        )}
 
         <View style={styles.createAccount}>
           <Text style={{ color: theme.colors.text }}>

@@ -21,6 +21,18 @@ export const getSolicitacaoById = async (id: number): Promise<Solicitacao> => {
   }
 };
 
+export const getUserSolicitacaoById = async (
+  id: number
+): Promise<Solicitacao> => {
+  try {
+    const response = await api.get(`/PessoaSolicitacao/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching solicitacao with id ${id}`, error);
+    throw error;
+  }
+};
+
 export const createSolicitacao = async (
   solicitacao: Partial<Solicitacao>
 ): Promise<Solicitacao> => {

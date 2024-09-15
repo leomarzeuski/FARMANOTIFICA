@@ -24,6 +24,7 @@ import {
 } from "react-native-paper";
 import theme from "src/theme";
 import * as yup from "yup";
+import DefaultImage from "@assets/userPhotoDefault.png";
 
 interface IFile {
   uri: string;
@@ -175,8 +176,10 @@ export function Profile() {
       <View style={styles.content}>
         {photoIsLoading ? (
           <ActivityIndicator animating={true} size="large" />
+        ) : userPhoto ? (
+          <Avatar.Image size={PHOTO_SIZE} source={{ uri: userPhoto.uri }} />
         ) : (
-          <Avatar.Image size={PHOTO_SIZE} source={{ uri: userPhoto }} />
+          <Avatar.Image size={PHOTO_SIZE} source={DefaultImage} />
         )}
         <TouchableOpacity onPress={handleUserPhotoSelected}>
           <Text

@@ -12,9 +12,7 @@ interface homeHeaderProps {
 
 export const HomeHeader: React.FC<homeHeaderProps> = ({ userName }) => {
   const { signOut, user } = useAuth();
-  const photo = user.urlFoto
-    ? user.urlFoto
-    : "https://media.licdn.com/dms/image/C4D03AQGcjUCUcjM8Qg/profile-displayphoto-shrink_100_100/0/1658155159137?e=1721865600&v=beta&t=pTji-JOnCixqoa7RUL9v2qO1OyfHZSDuqRdxPKmuN2I";
+  const photo = user.urlFoto ? user.urlFoto : "";
 
   const handleLogout = () => {
     signOut();

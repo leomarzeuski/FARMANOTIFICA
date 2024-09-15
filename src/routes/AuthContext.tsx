@@ -1,5 +1,6 @@
 // src/contexts/AuthContext.tsx
 import { User } from "@services/user/userModel";
+import { getUser, removeUser, saveUser } from "@storage/userStorage";
 import React, {
   createContext,
   useState,
@@ -28,17 +29,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User>({} as User);
   const [isLoading, setIsLoading] = useState(false);
 
-  const signOut = () => {
+  const signOut = async () => {
     setUser({} as User);
+    await removeUser();
   };
 
-  const signIn = (user: User) => {
+  const signIn = async (user: User) => {
     setIsLoading(true);
     if (user) {
       setUser(user);
+      await saveUser(user);
     }
     setIsLoading(false);
   };
+
+  const loadUser = async () => {
+    const savedUser = await getUser();
+    if (savedUser) {
+      setUser(savedUser);
+    } else {
+      setUser({} as User);
+    }
+  };
+
+  useEffect(() => {
+    setIsLoading(true);
+    loadUser();
+    setIsLoading(false);
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, setUser, isLoading, signOut, signIn }}>

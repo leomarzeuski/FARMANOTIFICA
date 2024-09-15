@@ -117,13 +117,16 @@ export function Home() {
                 ))}
               </Menu>
             </View>
-            <Button
+            {/* <Button
               mode="contained"
               onPress={handleSearch}
               style={styles.searchButton}
             >
               Pesquisar
-            </Button>
+            </Button> */}
+            <Headline style={styles.headline}>
+              Escolha qual fármacia deseja para retirar seu medicamento
+            </Headline>
             <FlatList
               data={filteredUnidades}
               keyExtractor={(item) => item.cdUnidade.toString()}

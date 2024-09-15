@@ -13,6 +13,7 @@ import AISvg from "@assets/ai.svg";
 import { PharmacyDetails } from "@screens/Pharmacy";
 import theme from "src/theme";
 import IA from "@screens/AI";
+import { Solicitation } from "@screens/historyOfSolicitations";
 
 type AppRoutes = {
   home: undefined;
@@ -21,6 +22,7 @@ type AppRoutes = {
   history?: any;
   pharmacy?: any;
   IA?: any;
+  solicitation?: any;
 };
 
 export type AppNavigatorRoutesProps = BottomTabNavigationProp<AppRoutes>;
@@ -69,13 +71,18 @@ export function AppRoutes() {
         }}
       />
       <Screen
-        name="history"
-        component={History}
+        name="solicitation"
+        component={Solicitation}
         options={{
           tabBarIcon: ({ color }) => (
             <HistorySvg fill={color} width={iconSize} height={iconSize} />
           ),
         }}
+      />
+      <Screen
+        name="history"
+        component={History}
+        options={{ tabBarButton: () => null }}
       />
       <Screen
         name="profile"

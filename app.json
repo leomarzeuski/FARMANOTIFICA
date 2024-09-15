@@ -4,10 +4,10 @@
     "slug": "farmanotifica",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./src/assets/favicon.png",
+    "icon": "./src/assets/logo.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./src/assets/favicon.png",
+      "image": "./src/assets/logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -19,16 +19,16 @@
     "android": {
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
-        "foregroundImage": "./src/assets/favicon.png",
+        "foregroundImage": "./src/assets/logo.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.leonardomarzeuski.farmanotifica"
     },
     "web": {
-      "favicon": "./src/assets/favicon.png"
+      "favicon": "./src/assets/logo.png"
     },
     "notification": {
-      "icon": "./src/assets/favicon.png"
+      "icon": "./src/assets/logo.png"
     },
     "plugins": [
       "@react-native-firebase/app",
