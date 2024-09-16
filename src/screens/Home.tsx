@@ -1,4 +1,3 @@
-import { HomeHeader } from "@components/HomeHeader";
 import React, { useEffect, useState } from "react";
 import {
   FlatList,
@@ -19,6 +18,7 @@ import { Unidade } from "@services/unidades/unidadesModel";
 import { getUnidades } from "@services/unidades/unidadesServices";
 import { Medicamento } from "@services/medicamento/medicamentoModel";
 import { getMedicamentos } from "@services/medicamento/medicamentoService";
+import { HomeHeader } from "@components/HomeHeader";
 
 export function Home() {
   const [unidades, setUnidades] = useState<Unidade[]>([]);
@@ -29,12 +29,20 @@ export function Home() {
   const { user } = useAuth();
   const navigation = useNavigation<AppNavigatorRoutesProps>();
 
+  const partnerPharmacies = [
+    {
+      cdUnidade: 9991,
+      dsUnidade: "Farmácia Parceira Gold 1",
+      dsEndereco: "Rua dos Parceiros, 123",
+      dsCidade: "São Paulo",
+      isPartner: true,
+    },
+  ];
+
   useEffect(() => {
-    // Função para buscar as unidades da API
     const fetchUnidades = async () => {
       try {
         const unidadesData = await getUnidades();
-        console.log(unidadesData);
         setUnidades(unidadesData);
         setFilteredUnidades(unidadesData);
       } catch (error) {
@@ -49,7 +57,6 @@ export function Home() {
     const fetchMedicamentos = async () => {
       try {
         const medicamentosData = await getMedicamentos();
-        console.log(medicamentosData);
         setMedicamentos(medicamentosData);
       } catch (error) {
         console.error("Erro ao buscar medicamentos:", error);
@@ -111,19 +118,13 @@ export function Home() {
                     onPress={() => {
                       setSelectedValue(medicamento.dsMedicamento);
                       setShowDropdown(false);
+                      setFilteredUnidades([...partnerPharmacies, ...unidades]);
                     }}
                     title={medicamento.dsMedicamento}
                   />
                 ))}
               </Menu>
             </View>
-            {/* <Button
-              mode="contained"
-              onPress={handleSearch}
-              style={styles.searchButton}
-            >
-              Pesquisar
-            </Button> */}
             <Headline style={styles.headline}>
               Escolha qual fármacia deseja para retirar seu medicamento
             </Headline>
@@ -136,6 +137,7 @@ export function Home() {
                   status={`Endereço: ${item.dsEndereco}`}
                   action={`Cidade: ${item.dsCidade}`}
                   onPress={() => handleOpenExerciseDetails(item, selectedValue)}
+                  isPartner={item.isPartner}
                 />
               )}
               contentContainerStyle={styles.listContent}
@@ -183,15 +185,7 @@ const styles = StyleSheet.create({
   selectIcon: {
     marginLeft: 8,
   },
-  searchButton: {
-    marginBottom: 16,
-  },
   listContent: {
     paddingBottom: 350,
-  },
-  loadingText: {
-    textAlign: "center",
-    padding: 16,
-    color: theme.colors.text,
   },
 });

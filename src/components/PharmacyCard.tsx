@@ -1,7 +1,6 @@
 import React from "react";
 import { TouchableOpacity, TouchableOpacityProps } from "react-native";
 import { Card, Text, IconButton, Avatar } from "react-native-paper";
-import { Entypo } from "@expo/vector-icons";
 import { StyleSheet } from "react-native";
 import theme from "src/theme";
 
@@ -9,15 +8,22 @@ type Props = TouchableOpacityProps & {
   title: string;
   status: string;
   action: string;
+  isPartner?: boolean; // Adiciona a propriedade isPartner
 };
 
-export function PharmacyCard({ title, status, action, ...rest }: Props) {
+export function PharmacyCard({
+  title,
+  status,
+  action,
+  isPartner,
+  ...rest
+}: Props) {
   return (
     <TouchableOpacity {...rest} style={styles.touchable}>
-      <Card style={styles.card}>
+      <Card style={[styles.card, isPartner && styles.partnerCard]}>
         <Card.Title
           title={title}
-          titleStyle={styles.title}
+          titleStyle={[styles.title, isPartner && styles.partnerTitle]}
           left={(props) => (
             <Avatar.Image
               {...props}
@@ -32,14 +38,25 @@ export function PharmacyCard({ title, status, action, ...rest }: Props) {
             <IconButton
               {...props}
               icon="chevron-right"
-              iconColor={theme.colors.primary}
+              iconColor={isPartner ? "#ffffff" : theme.colors.primary}
               size={24}
             />
           )}
         />
         <Card.Content>
-          <Text style={styles.status}>{status}</Text>
-          <Text style={styles.action}>{action}</Text>
+          <Text style={[styles.status, isPartner && styles.partnerText]}>
+            {status}
+          </Text>
+          <Text style={[styles.action, isPartner && styles.partnerText]}>
+            {action}
+          </Text>
+
+          {/* Adiciona a mensagem "Recomendado por Farmanotifica" */}
+          {isPartner && (
+            <Text style={styles.recommendedText}>
+              Recomendado por Farmanotifica{"\n"}(Desconto Garantido!)
+            </Text>
+          )}
         </Card.Content>
       </Card>
     </TouchableOpacity>
@@ -53,21 +70,56 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "#333",
     borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 15,
+    elevation: 3,
+  },
+  partnerCard: {
+    backgroundColor: "#00B37E",
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 18,
+    borderWidth: 1,
+    borderColor: "#00B37E",
+    shadowColor: "#0d0f0d",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 8,
   },
   title: {
-    color: "white",
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  partnerTitle: {
+    color: "#ffffff",
+    fontSize: 20,
+    fontWeight: "bold",
   },
   avatar: {
     backgroundColor: "transparent",
   },
   status: {
-    color: "gray",
+    color: "#b0b0b0",
     marginTop: 8,
     fontSize: 14,
   },
   action: {
-    color: "gray",
+    color: "#b0b0b0",
     marginTop: 4,
     fontSize: 14,
+  },
+  partnerText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  recommendedText: {
+    marginTop: 10,
+    color: "#FFD700",
+    fontSize: 14,
+    fontWeight: "800",
+    textAlign: "center",
   },
 });
