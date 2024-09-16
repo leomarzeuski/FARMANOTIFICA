@@ -45,12 +45,39 @@ export const createSolicitacao = async (
   }
 };
 
+export const ReSendSolicitacao = async (
+  solicitacao: Partial<Solicitacao>
+): Promise<Solicitacao> => {
+  try {
+    const response = await api.post("/SolicitacaoAnexo", solicitacao);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating solicitacao", error);
+    throw error;
+  }
+};
+
 export const updateSolicitacao = async (
   id: number,
   solicitacao: Partial<Solicitacao>
 ): Promise<Solicitacao> => {
   try {
     const response = await api.put(`/Solicitacao/${id}`, solicitacao);
+    return response.data;
+  } catch (error) {
+    console.error(`Error updating solicitacao with id ${id}`, error);
+    throw error;
+  }
+};
+
+export const AgendarSolicitacao = async (
+  id: number,
+  date: string
+): Promise<Solicitacao> => {
+  try {
+    const response = await api.put(
+      `/Agendamento?id=${id}&dtAgendamento=${date}`
+    );
     return response.data;
   } catch (error) {
     console.error(`Error updating solicitacao with id ${id}`, error);

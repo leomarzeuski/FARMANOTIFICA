@@ -5,7 +5,9 @@ import {
   StyleSheet,
   ActivityIndicator,
   Linking,
+  Platform,
 } from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import {
   Card,
   Button,
@@ -21,6 +23,10 @@ import {
 import { ScreenHeader } from "@components/ScreenHeader";
 import theme from "src/theme";
 import { getUserSolicitacaoById } from "@services/solicitacoes/solicitacaoService";
+import {
+  ReSendSolicitacao,
+  AgendarSolicitacao,
+} from "@services/solicitacoes/solicitacaoService"; // Função para agendar e reenvio
 import { useAuth } from "@routes/AuthContext";
 import * as DocumentPicker from "expo-document-picker";
 
@@ -35,6 +41,9 @@ export const Solicitation = () => {
   const [file, setFile] = useState<any>(null);
   const [visibleMenu, setVisibleMenu] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState("");
+  const [selectedSolicitacao, setSelectedSolicitacao] = useState<any>(null); // Armazena a solicitação selecionada
+  const [showDatePicker, setShowDatePicker] = useState(false); // Controle do DatePicker
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   useEffect(() => {
     const fetchSolicitacoes = async () => {
@@ -72,6 +81,7 @@ export const Solicitation = () => {
         bula: item.cdUnidadeMedicamentoNavigation.cdMedicamentoNavigation
           .urlBula,
         data: solicitacao.dtSolicitacao.slice(0, 10),
+        cdSolicitacao: solicitacao.cdSolicitacao, // Adiciona cdSolicitacao para uso posterior
       })),
     }));
   };
@@ -93,7 +103,11 @@ export const Solicitation = () => {
 
   const handleCardPress = (item: any) => {
     if (item.status.toLowerCase() === "reenviar") {
+      setSelectedSolicitacao(item.cdSolicitacao); // Salva a solicitação atual
       setShowModalReenviar(true);
+    } else if (item.status.toLowerCase() === "agendar") {
+      setSelectedSolicitacao(item.cdSolicitacao); // Salva a solicitação atual
+      setShowDatePicker(true); // Exibe o DateTimePicker
     }
   };
 
@@ -113,7 +127,42 @@ export const Solicitation = () => {
     }
   };
 
-  // Function to filter medications by selected status
+  const handleReSendSolicitacao = async () => {
+    if (file && selectedSolicitacao) {
+      const body = { selectedSolicitacao, file };
+      try {
+        await ReSendSolicitacao(body);
+        alert("Solicitação reenviada com sucesso!");
+        setShowModalReenviar(false);
+      } catch (error) {
+        console.error("Erro ao reenviar solicitação:", error);
+        alert("Erro ao reenviar solicitação.");
+      }
+    } else {
+      alert("Por favor, selecione um arquivo antes de reenviar.");
+    }
+  };
+
+  const handleDateChange = async (event: any, date?: Date) => {
+    if (date) {
+      setShowDatePicker(false);
+      setSelectedDate(date);
+      const formattedDate = date.toISOString().split("T")[0].replace(/-/g, "/");
+      const id = selectedSolicitacao;
+      const dtAgendamento = formattedDate;
+      try {
+        console.log({ selectedSolicitacao, formattedDate });
+        await AgendarSolicitacao(id, dtAgendamento);
+        alert("Solicitação agendada com sucesso!");
+      } catch (error) {
+        console.error("Erro ao agendar solicitação:", error);
+        alert("Erro ao agendar solicitação.");
+      }
+    } else {
+      setShowDatePicker(false);
+    }
+  };
+
   const filterMedications = () => {
     if (!selectedStatus) {
       return medications;
@@ -288,19 +337,36 @@ export const Solicitation = () => {
                 <Paragraph>Arquivo - {selectedFileName}</Paragraph>
               </Card.Content>
               <Card.Actions style={styles.modalActions}>
-                <Button mode="contained" onPress={pickDocument}>
-                  Carregar Laudo
-                </Button>
-                <Button
-                  mode="outlined"
-                  onPress={() => setShowModalReenviar(false)}
-                >
-                  Voltar
-                </Button>
+                <View>
+                  <Button mode="contained" onPress={pickDocument}>
+                    Carregar Laudo
+                  </Button>
+                </View>
+                <View style={styles.viewActions}>
+                  <Button mode="contained" onPress={handleReSendSolicitacao}>
+                    Reenviar Solicitação
+                  </Button>
+                  <Button
+                    mode="outlined"
+                    onPress={() => setShowModalReenviar(false)}
+                  >
+                    Voltar
+                  </Button>
+                </View>
               </Card.Actions>
             </Card>
           </Modal>
         </Portal>
+
+        {/* DateTimePicker para Agendamento */}
+        {showDatePicker && (
+          <DateTimePicker
+            value={selectedDate}
+            mode="date"
+            display={Platform.OS === "ios" ? "spinner" : "default"}
+            onChange={handleDateChange}
+          />
+        )}
       </View>
     </PaperProvider>
   );
@@ -339,7 +405,16 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   modalActions: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 20,
     justifyContent: "space-between",
+  },
+  viewActions: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 20,
   },
   emptyText: {
     color: theme.colors.text,
