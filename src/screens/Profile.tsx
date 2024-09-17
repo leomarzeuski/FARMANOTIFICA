@@ -136,15 +136,7 @@ export function Profile() {
   };
 
   const handleNewPassword = async (data: FormDataProps) => {
-    console.log("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
     try {
-      // // A foto do usuário já deve estar no formato IFile
-      // const userPhotoFile: IFile = {
-      //   uri: userPhoto,
-      //   type: "image/jpeg", // Ajuste o tipo MIME conforme necessário
-      //   name: userPhoto.split("/").pop() || "profile.jpg",
-      // };
-
       const pessoa = {
         cdPessoa: user?.cdPessoa,
         dsEmail: user?.dsEmail,

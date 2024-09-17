@@ -17,23 +17,30 @@ import { useAuth } from "@routes/AuthContext";
 import { Unidade } from "@services/unidades/unidadesModel";
 import { getUnidades } from "@services/unidades/unidadesServices";
 import { Medicamento } from "@services/medicamento/medicamentoModel";
-import { getMedicamentos } from "@services/medicamento/medicamentoService";
+import {
+  getMedicamentos,
+  getMedicamentoUnidadeById,
+} from "@services/medicamento/medicamentoService";
 import { HomeHeader } from "@components/HomeHeader";
 
 export function Home() {
   const [unidades, setUnidades] = useState<Unidade[]>([]);
   const [filteredUnidades, setFilteredUnidades] = useState<Unidade[]>([]);
-  const [selectedValue, setSelectedValue] = useState<string>("");
+  const [selectedValue, setSelectedValue] = useState<any>();
   const [showDropdown, setShowDropdown] = useState(false);
   const [medicamentos, setMedicamentos] = useState<Medicamento[]>([]);
   const { user } = useAuth();
   const navigation = useNavigation<AppNavigatorRoutesProps>();
+  const [newUnidadeMedicamentoValue, setNewUnidadeMedicamentoValue] =
+    useState<any>();
+
+  console.log({ newUnidadeMedicamentoValue });
 
   const partnerPharmacies = [
     {
       cdUnidade: 9991,
-      dsUnidade: "Farmácia Parceira Gold 1",
-      dsEndereco: "Rua dos Parceiros, 123",
+      dsUnidade: "Farmácia Parceira NotificaFarma",
+      dsEndereco: "Rua dos Marechal, 547",
       dsCidade: "São Paulo",
       isPartner: true,
     },
@@ -66,8 +73,34 @@ export function Home() {
     fetchMedicamentos();
   }, []);
 
-  const handleOpenExerciseDetails = (unidade: any, medicamento: string) => {
-    navigation.navigate("pharmacy", { unidade, medicamento, medicamentos });
+  useEffect(() => {
+    const fetchMedicamentosUnidade = async () => {
+      try {
+        if (selectedValue !== undefined) {
+          const medicamentosUnidadeData = await getMedicamentoUnidadeById(
+            selectedValue.cdMedicamento
+          );
+          setNewUnidadeMedicamentoValue(medicamentosUnidadeData);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar medicamentos:", error);
+      }
+    };
+
+    fetchMedicamentosUnidade();
+  }, [selectedValue]);
+
+  const handleOpenExerciseDetails = (
+    unidade: any,
+    medicamento: string,
+    unidadeMedicamento: number
+  ) => {
+    navigation.navigate("pharmacy", {
+      unidade,
+      medicamento,
+      medicamentos,
+      unidadeMedicamento,
+    });
   };
 
   const handleSearch = () => {
@@ -103,7 +136,10 @@ export function Home() {
                     style={styles.selectInput}
                     onPress={() => setShowDropdown(true)}
                   >
-                    <Text>{selectedValue || "Selecione um medicamento"}</Text>
+                    <Text>
+                      {selectedValue?.dsMedicamento ||
+                        "Selecione um medicamento"}
+                    </Text>
                     <MaterialCommunityIcons
                       name="chevron-down"
                       size={24}
@@ -116,11 +152,11 @@ export function Home() {
                   <Menu.Item
                     key={medicamento.cdMedicamento}
                     onPress={() => {
-                      setSelectedValue(medicamento.dsMedicamento);
+                      setSelectedValue(medicamento);
                       setShowDropdown(false);
                       setFilteredUnidades([...partnerPharmacies, ...unidades]);
                     }}
-                    title={medicamento.dsMedicamento}
+                    title={medicamento?.dsMedicamento}
                   />
                 ))}
               </Menu>
@@ -136,7 +172,13 @@ export function Home() {
                   title={item.dsUnidade}
                   status={`Endereço: ${item.dsEndereco}`}
                   action={`Cidade: ${item.dsCidade}`}
-                  onPress={() => handleOpenExerciseDetails(item, selectedValue)}
+                  onPress={() =>
+                    handleOpenExerciseDetails(
+                      item,
+                      selectedValue?.dsMedicamento,
+                      newUnidadeMedicamentoValue[0]?.cdUnidadeMedicamento
+                    )
+                  }
                   isPartner={item.isPartner}
                 />
               )}

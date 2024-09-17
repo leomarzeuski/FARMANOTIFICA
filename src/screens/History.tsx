@@ -51,6 +51,7 @@ export const History = () => {
 
   const route = useRoute<any>();
   const { medicamentos, cdPessoa } = route.params;
+  console.log({ medicamentos });
 
   const showDatePicker1 = () => {
     setDatePickerVisibility(true);
@@ -120,13 +121,12 @@ export const History = () => {
     const solicitacaoData = {
       cdPessoa: cdPessoa,
       dtSolicitacao: "",
-      listaCdUnidadeMedicamento: medicamentos.map(
-        (el: any) => el.cdMedicamento
-      ),
+      listaCdUnidadeMedicamento: medicamentos,
       anexo: file,
     };
 
     try {
+      console.log({ solicitacaoData });
       await createSolicitacao(solicitacaoData);
       alert("Solicitação enviada com sucesso!");
       handleLoadDocumentSuccess();

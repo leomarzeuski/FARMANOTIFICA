@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   Linking,
   Platform,
+  RefreshControl,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import {
@@ -26,7 +27,7 @@ import { getUserSolicitacaoById } from "@services/solicitacoes/solicitacaoServic
 import {
   ReSendSolicitacao,
   AgendarSolicitacao,
-} from "@services/solicitacoes/solicitacaoService"; // Função para agendar e reenvio
+} from "@services/solicitacoes/solicitacaoService";
 import { useAuth } from "@routes/AuthContext";
 import * as DocumentPicker from "expo-document-picker";
 
@@ -41,9 +42,10 @@ export const Solicitation = () => {
   const [file, setFile] = useState<any>(null);
   const [visibleMenu, setVisibleMenu] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState("");
-  const [selectedSolicitacao, setSelectedSolicitacao] = useState<any>(null); // Armazena a solicitação selecionada
-  const [showDatePicker, setShowDatePicker] = useState(false); // Controle do DatePicker
+  const [selectedSolicitacao, setSelectedSolicitacao] = useState<any>(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     const fetchSolicitacoes = async () => {
@@ -62,28 +64,48 @@ export const Solicitation = () => {
   }, []);
 
   const formatSolicitacoes = (solicitacoes: any) => {
-    return solicitacoes.map((solicitacao: any) => ({
-      title: `Solicitação de ${solicitacao.dtSolicitacao.slice(0, 10)}`,
-      data: solicitacao.fnSolicitacaoItens.map((item: any) => ({
-        id: item.cdSolicitacaoItens,
-        medicamento:
-          item.cdUnidadeMedicamentoNavigation.cdMedicamentoNavigation
-            .dsMedicamento,
-        dosagem:
-          item.cdUnidadeMedicamentoNavigation.cdMedicamentoNavigation.dsDosagem,
-        fabricante:
-          item.cdUnidadeMedicamentoNavigation.cdMedicamentoNavigation
-            .dsFabricante,
-        status: solicitacao.cdStatusNavigation.dsStatus,
-        observacao:
-          item.cdUnidadeMedicamentoNavigation.cdMedicamentoNavigation
-            .dsObservacao,
-        bula: item.cdUnidadeMedicamentoNavigation.cdMedicamentoNavigation
-          .urlBula,
-        data: solicitacao.dtSolicitacao.slice(0, 10),
-        cdSolicitacao: solicitacao.cdSolicitacao, // Adiciona cdSolicitacao para uso posterior
-      })),
-    }));
+    return solicitacoes
+      .map((solicitacao: any) => ({
+        title: `Solicitação de ${solicitacao.dtSolicitacao.slice(0, 10)}`,
+        data: solicitacao.fnSolicitacaoItens.map((item: any) => ({
+          id: item.cdSolicitacaoItens,
+          medicamento:
+            item.cdUnidadeMedicamentoNavigation.cdMedicamentoNavigation
+              .dsMedicamento,
+          dosagem:
+            item.cdUnidadeMedicamentoNavigation.cdMedicamentoNavigation
+              .dsDosagem,
+          fabricante:
+            item.cdUnidadeMedicamentoNavigation.cdMedicamentoNavigation
+              .dsFabricante,
+          status: solicitacao.cdStatusNavigation.dsStatus,
+          observacao:
+            item.cdUnidadeMedicamentoNavigation.cdMedicamentoNavigation
+              .dsObservacao,
+          bula: item.cdUnidadeMedicamentoNavigation.cdMedicamentoNavigation
+            .urlBula,
+          data: solicitacao.dtSolicitacao.slice(0, 10),
+          cdSolicitacao: solicitacao.cdSolicitacao,
+        })),
+      }))
+      .sort(
+        (a: any, b: any) =>
+          new Date(b.title.split(" ")[2]).getTime() -
+          new Date(a.title.split(" ")[2]).getTime()
+      ); // Ordena pela data mais recente
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      const response = await getUserSolicitacaoById(user.cdPessoa);
+      const formattedMedications = formatSolicitacoes(response);
+      setMedications(formattedMedications);
+    } catch (error) {
+      console.error("Erro ao buscar solicitações:", error);
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -103,11 +125,11 @@ export const Solicitation = () => {
 
   const handleCardPress = (item: any) => {
     if (item.status.toLowerCase() === "reenviar") {
-      setSelectedSolicitacao(item.cdSolicitacao); // Salva a solicitação atual
+      setSelectedSolicitacao(item.cdSolicitacao);
       setShowModalReenviar(true);
     } else if (item.status.toLowerCase() === "agendar") {
-      setSelectedSolicitacao(item.cdSolicitacao); // Salva a solicitação atual
-      setShowDatePicker(true); // Exibe o DateTimePicker
+      setSelectedSolicitacao(item.cdSolicitacao);
+      setShowDatePicker(true);
     }
   };
 
@@ -240,6 +262,9 @@ export const Solicitation = () => {
           <SectionList
             sections={filterMedications()}
             keyExtractor={(item) => item.id.toString()}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
             renderItem={({ item }) => (
               <Card style={styles.card} onPress={() => handleCardPress(item)}>
                 <Card.Title
@@ -270,7 +295,7 @@ export const Solicitation = () => {
                     <Button
                       mode="text"
                       onPress={() => {
-                        Linking.openURL(item.bula); // Use Linking para abrir o URL da bula
+                        Linking.openURL(item.bula);
                       }}
                     >
                       Ver Bula

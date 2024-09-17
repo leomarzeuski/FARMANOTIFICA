@@ -28,7 +28,8 @@ export const PharmacyDetails = () => {
   const { user } = useAuth();
   const navigation = useNavigation<AppNavigatorRoutesProps>();
   const route = useRoute<any>();
-  const { unidade, medicamento, medicamentos } = route.params;
+  const { unidade, medicamento, medicamentos, unidadeMedicamento } =
+    route.params;
   const selectedMedication = medicamento;
   const additionalInformation = medicamentos.find(
     (med: any) => med.dsMedicamento === selectedMedication
@@ -40,11 +41,13 @@ export const PharmacyDetails = () => {
     navigation.goBack();
   }
 
+  console.log({ medicamentos, unidadeMedicamento });
+
   function handleReserve() {
     if (selectedMedication) {
       navigation.navigate("history", {
         medication: selectedMedication ?? "",
-        medicamentos: medicamentos ?? [],
+        medicamentos: unidadeMedicamento ?? [],
         cdPessoa: user.cdPessoa,
       });
     } else {

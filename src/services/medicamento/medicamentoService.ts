@@ -21,6 +21,18 @@ export const getMedicamentoById = async (id: number): Promise<Medicamento> => {
   }
 };
 
+export const getMedicamentoUnidadeById = async (
+  id: number
+): Promise<Medicamento> => {
+  try {
+    const response = await api.get(`/MedicamentoUnidade/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching medicamento with id ${id}`, error);
+    throw error;
+  }
+};
+
 export const createMedicamento = async (
   medicamento: Partial<Medicamento>
 ): Promise<Medicamento> => {
