@@ -161,29 +161,33 @@ export function Home() {
                 ))}
               </Menu>
             </View>
-            <Headline style={styles.headline}>
-              Escolha qual fármacia deseja para retirar seu medicamento
-            </Headline>
-            <FlatList
-              data={filteredUnidades}
-              keyExtractor={(item) => item.cdUnidade.toString()}
-              renderItem={({ item }) => (
-                <PharmacyCard
-                  title={item.dsUnidade}
-                  status={`Endereço: ${item.dsEndereco}`}
-                  action={`Cidade: ${item.dsCidade}`}
-                  onPress={() =>
-                    handleOpenExerciseDetails(
-                      item,
-                      selectedValue?.dsMedicamento,
-                      newUnidadeMedicamentoValue[0]?.cdUnidadeMedicamento
-                    )
-                  }
-                  isPartner={item.isPartner}
+            {selectedValue && (
+              <>
+                <Headline style={styles.headline}>
+                  Escolha qual fármacia deseja para retirar seu medicamento
+                </Headline>
+                <FlatList
+                  data={filteredUnidades}
+                  keyExtractor={(item) => item.cdUnidade.toString()}
+                  renderItem={({ item }) => (
+                    <PharmacyCard
+                      title={item.dsUnidade}
+                      status={`Endereço: ${item.dsEndereco}`}
+                      action={`Cidade: ${item.dsCidade}`}
+                      onPress={() =>
+                        handleOpenExerciseDetails(
+                          item,
+                          selectedValue?.dsMedicamento,
+                          newUnidadeMedicamentoValue[0]?.cdUnidadeMedicamento
+                        )
+                      }
+                      isPartner={item.isPartner}
+                    />
+                  )}
+                  contentContainerStyle={styles.listContent}
                 />
-              )}
-              contentContainerStyle={styles.listContent}
-            />
+              </>
+            )}
           </View>
         </View>
       </View>
