@@ -39,7 +39,7 @@ export function Home() {
   const partnerPharmacies = [
     {
       cdUnidade: 9991,
-      dsUnidade: "Farmácia Parceira NotificaFarma",
+      dsUnidade: "Drogasil",
       dsEndereco: "Rua dos Marechal, 547",
       dsCidade: "São Paulo",
       isPartner: true,

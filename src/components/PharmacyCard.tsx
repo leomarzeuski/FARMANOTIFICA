@@ -1,5 +1,5 @@
 import React from "react";
-import { TouchableOpacity, TouchableOpacityProps } from "react-native";
+import { TouchableOpacity, TouchableOpacityProps, Linking } from "react-native";
 import { Card, Text, IconButton, Avatar } from "react-native-paper";
 import { StyleSheet } from "react-native";
 import theme from "src/theme";
@@ -8,7 +8,7 @@ type Props = TouchableOpacityProps & {
   title: string;
   status: string;
   action: string;
-  isPartner?: boolean; // Adiciona a propriedade isPartner
+  isPartner?: boolean;
 };
 
 export function PharmacyCard({
@@ -18,8 +18,18 @@ export function PharmacyCard({
   isPartner,
   ...rest
 }: Props) {
+  const handlePress = () => {
+    if (isPartner) {
+      Linking.openURL(
+        "https://www.drogasil.com.br/search?w=isotretinoina+20+mg&origin=autocomplete&ranking=2&p=iso"
+      );
+    } else {
+      rest.onPress && rest.onPress;
+    }
+  };
+
   return (
-    <TouchableOpacity {...rest} style={styles.touchable}>
+    <TouchableOpacity {...rest} style={styles.touchable} onPress={handlePress}>
       <Card style={[styles.card, isPartner && styles.partnerCard]}>
         <Card.Title
           title={title}
@@ -50,8 +60,6 @@ export function PharmacyCard({
           <Text style={[styles.action, isPartner && styles.partnerText]}>
             {action}
           </Text>
-
-          {/* Adiciona a mensagem "Recomendado por Farmanotifica" */}
           {isPartner && (
             <Text style={styles.recommendedText}>
               Recomendado por Farmanotifica{"\n"}(Desconto Garantido!)

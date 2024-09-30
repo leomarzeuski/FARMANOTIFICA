@@ -46,7 +46,7 @@ export const createSolicitacao = async (
 };
 
 export const ReSendSolicitacao = async (
-  solicitacao: Partial<Solicitacao>
+  solicitacao: any
 ): Promise<Solicitacao> => {
   try {
     const response = await api.post("/SolicitacaoAnexo", solicitacao);

@@ -86,6 +86,9 @@ export const Solicitation = () => {
             .urlBula,
           data: solicitacao.dtSolicitacao.slice(0, 10),
           cdSolicitacao: solicitacao.cdSolicitacao,
+          tempoMedio:
+            item.cdUnidadeMedicamentoNavigation.cdMedicamentoNavigation
+              .qtdMediaDias,
         })),
       }))
       .sort(
@@ -118,8 +121,10 @@ export const Solicitation = () => {
         return "#FF4500";
       case "agendar":
         return "#1E90FF";
+      case "agendado":
+        return "#1effcb";
       default:
-        return "#000000";
+        return "#ff0000";
     }
   };
 
@@ -201,7 +206,7 @@ export const Solicitation = () => {
 
   return (
     <PaperProvider theme={theme}>
-      <ScreenHeader title="Histórico de Medicamentos" />
+      <ScreenHeader title="Histórico de Reservas" />
 
       <View style={styles.filterContainer}>
         <Menu
@@ -277,6 +282,9 @@ export const Solicitation = () => {
                   </Paragraph>
                   <Paragraph style={styles.paragraph}>
                     Fabricante: {item.fabricante}
+                  </Paragraph>
+                  <Paragraph style={styles.paragraph}>
+                    Tempo Médio: {item.tempoMedio}
                   </Paragraph>
                   <Chip
                     style={[

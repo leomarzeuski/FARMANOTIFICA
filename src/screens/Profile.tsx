@@ -25,6 +25,7 @@ import {
 import theme from "src/theme";
 import * as yup from "yup";
 import DefaultImage from "@assets/userPhotoDefault.png";
+import messaging from "@react-native-firebase/messaging";
 
 interface IFile {
   uri: string;
@@ -64,12 +65,34 @@ export function Profile() {
   } = useForm<FormDataProps>({ resolver: yupResolver(profileScheme) });
   const [photoIsLoading, setPhotoIsLoading] = useState(false);
   const [userPhoto, setUserPhoto] = useState(user?.urlFoto);
+  const [token, setToken] = useState("");
+
+  async function requestUserPermission() {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+    if (enabled) {
+      console.log("Authorization status:", authStatus);
+    }
+  }
+
+  const getToken = async () => {
+    const token = await messaging().getToken();
+    setToken(token);
+  };
+
+  React.useEffect(() => {
+    requestUserPermission();
+    getToken();
+  }, []);
+
   console.log({ user });
   // user?.urlFoto ||
   //   "https://media.licdn.com/dms/image/C4D03AQGcjUCUcjM8Qg/profile-displayphoto-shrink_100_100/0/1658155159137?e=1721865600&v=beta&t=pTji-JOnCixqoa7RUL9v2qO1OyfHZSDuqRdxPKmuN2I"
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  console.log(user);
 
   async function handleUserPhotoSelected() {
     setPhotoIsLoading(true);
@@ -143,14 +166,11 @@ export function Profile() {
         nrCpf: user?.nrCpf,
         dsSenha: data.new_password || user?.dsSenha,
         dsNome: data.userName || user?.dsNome,
-        anexo: userPhoto, // Enviando a foto no formato IFile
+        anexo: userPhoto,
       };
 
-      console.log({ pessoa });
-
       const response = await userService.updateUser(user?.cdPessoa, pessoa);
-      console.log({ response });
-      console.log({ response, data });
+
       ToastAndroid.show("Usuário atualizado!", ToastAndroid.SHORT);
     } catch (error) {
       setSnackbarMessage("Falha ao salvar a senha.");
@@ -270,6 +290,13 @@ export function Profile() {
               )}
             </View>
           )}
+        />
+        <Input
+          mode="outlined"
+          label="Token de acesso"
+          value={token}
+          style={styles.input}
+          theme={{ colors: { background: theme.colors.background } }}
         />
         <Button
           mode="contained"
