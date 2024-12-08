@@ -6,4 +6,5 @@ export interface Unidade {
   cep: string;
   dsCidade: string;
   dsCnpj: string;
+  isPartner?: boolean;
 }

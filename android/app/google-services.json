@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "977322526608",
+    "project_id": "farmanotifica-6efdd",
+    "storage_bucket": "farmanotifica-6efdd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:977322526608:android:d997d5b2bab0da518bd515",
+        "android_client_info": {
+          "package_name": "com.leonardomarzeuski.farmanotifica"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBads-eGgPBCVeFnC13saYVTCt2G6Y4X50"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

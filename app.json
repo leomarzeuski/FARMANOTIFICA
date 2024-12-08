@@ -11,19 +11,17 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "ios": {
-      "googleServicesFile": "./GoogleService-Info.plist",
-      "supportsTablet": true,
-      "bundleIdentifier": "com.leonardomarzeuski.farmanotifica"
-    },
-    "android": {
-      "googleServicesFile": "./google-services.json",
-      "adaptiveIcon": {
-        "foregroundImage": "./src/assets/logo.png",
-        "backgroundColor": "#ffffff"
-      },
-      "package": "com.leonardomarzeuski.farmanotifica"
-    },
+ "ios": {
+  "supportsTablet": true,
+  "bundleIdentifier": "com.leonardomarzeuski.farmanotifica"
+},
+"android": {
+  "adaptiveIcon": {
+    "foregroundImage": "./src/assets/logo.png",
+    "backgroundColor": "#ffffff"
+  },
+  "package": "com.leonardomarzeuski.farmanotifica"
+},
     "web": {
       "favicon": "./src/assets/logo.png"
     },

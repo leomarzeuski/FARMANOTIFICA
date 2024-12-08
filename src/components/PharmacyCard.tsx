@@ -19,12 +19,13 @@ export function PharmacyCard({
   ...rest
 }: Props) {
   const handlePress = () => {
+
     if (isPartner) {
       Linking.openURL(
         "https://www.drogasil.com.br/search?w=isotretinoina+20+mg&origin=autocomplete&ranking=2&p=iso"
       );
     } else {
-      rest.onPress && rest.onPress;
+      rest?.onPress();
     }
   };
 
